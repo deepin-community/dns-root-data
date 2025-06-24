@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+# vim: shiftwidth=4 tabstop=4
+#
+# This program implements the procedure defined in RFC 7958bis to update the
+# root zone DNSSEC trust anchors.
+#
+# https://datatracker.ietf.org/doc/draft-ietf-dnsop-rfc7958bis/
+
+use v5.32;
+use warnings;
+
+use XML::LibXML;
+use DateTime;
+use DateTime::Format::RFC3339;
+use Net::DNS;
+use Path::Tiny;
+
+##############################################################################
+sub parse_root_anchors {
+	my ($file) = @_;
+
+	my $now = DateTime->now;
+	my $format = DateTime::Format::RFC3339->new;
+
+	my $dom = XML::LibXML->load_xml(location => $file);
+
+	# check the basic XML structure of the file
+	my ($zone) = $dom->findnodes('/TrustAnchor/Zone')
+		or die "<TrustAnchor><Zone> node not found!\n";
+	my $zone_value = $zone->to_literal or die;
+	die "These hints are not for the root zone!\n" if not $zone_value eq '.';
+
+	# parse each anchor
+	my (@dnskey, @ds);
+	foreach my $key ($dom->findnodes('/TrustAnchor/KeyDigest')) {
+		my $id = $key->{id} or die 'No key id';
+		my $tag = $key->findvalue('./KeyTag') or die 'No key tag';
+
+		my $valid_until = $key->{validUntil};
+		if (defined $valid_until) {
+			$valid_until = $format->parse_datetime($valid_until);
+
+			if (DateTime->compare($valid_until, $now) <= 0) {
+				say "Key $tag ignored: it expired on $valid_until.";
+				next;
+			}
+		}
+		my $valid_from = $key->{validFrom};
+		if (defined $valid_from) {
+			$valid_from = $format->parse_datetime($valid_from);
+			say "Key $tag is or will be valid from $valid_from.";
+		} else {
+			say "Key $tag has no initial validity date defined.";
+		}
+
+		my $new_ds = Net::DNS::RR->new(
+			owner		=> '.',
+			type		=> 'DS',
+			keytag		=> $tag,
+			algorithm	=> $key->findvalue('./Algorithm'),
+			digtype		=> $key->findvalue('./DigestType'),
+			digest		=> $key->findvalue('./Digest')
+		);
+		push(@ds, $new_ds);
+
+		my $publickey = $key->findvalue('./PublicKey') or next;
+		my $new_dnskey = Net::DNS::RR->new(
+			owner		=> '.',
+			type		=> 'DNSKEY',
+			keytag		=> $tag,
+			algorithm	=> $key->findvalue('./Algorithm'),
+			flags		=> $key->findvalue('./Flags'),
+			key			=> $publickey,
+		);
+		compare_key_ds($new_dnskey, $new_ds);
+		push(@dnskey, $new_dnskey);
+	}
+
+	return {
+		dnskey	=> \@dnskey,
+		ds		=> \@ds,
+	};
+}
+
+##############################################################################
+# Make sure that the DS record matches the DNSKEY record, as required by
+# RFC 7958bis section 4.1.2.
+sub compare_key_ds {
+	my ($key, $ds) = @_;
+
+	# create a DS record computed from the key in the DNSKEY record
+	my $dsk = Net::DNS::RR::DS->create(
+		$key,
+		digtype => $ds->digtype,
+	);
+
+	# and check they it matches the anchor DS record
+	if ($ds->algorithm ne $dsk->algorithm or $ds->digest ne $dsk->digest) {
+		say 'The DS record in the root anchors file:';
+		$ds->print;
+		say "\ndoes not match the DS record computed from the key in the"
+			. " root anchors file:";
+		$dsk->print;
+		die;
+	}
+
+	return 1;
+}
+
+##############################################################################
+sub write_ds {
+	my ($file, $data) = @_;
+
+	my $out = path($file);
+	my @lines = map {
+		join(' ', $_->{owner}->string, $_->class, $_->type,
+			$_->keytag, $_->algorithm, $_->digtype, uc $_->digest)
+		. "\n"
+	} @$data;
+	$out->spew(@lines);
+	return;
+}
+
+sub write_dnskey {
+	my ($file, $data) = @_;
+
+	my $out = path($file);
+	my @lines = map {
+		join(' ', $_->{owner}->string, $_->class, $_->type,
+			$_->flags, $_->protocol, $_->algorithm, $_->key)
+		. " ; keytag " . $_->keytag . "\n"
+	} @$data;
+	$out->spew(@lines);
+	return;
+}
+
+##############################################################################
+my $data = parse_root_anchors('root-anchors.xml');
+
+die 'No DNSKEY records found' if not @{ $data->{dnskey} };
+die 'No DS records found' if not @{ $data->{ds} };
+
+write_ds('root.ds', $data->{ds});
+write_dnskey('root.key', $data->{dnskey});
+

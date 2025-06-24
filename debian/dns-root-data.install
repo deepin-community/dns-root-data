@@ -1,1 +1,3 @@
-root.* /usr/share/dns/
+root.hints /usr/share/dns/
+root.key /usr/share/dns/
+root.ds /usr/share/dns/

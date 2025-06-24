@@ -1,3 +1,55 @@
+dns-root-data (2024071801) unstable; urgency=medium
+
+  * Actually add the DNSKEY record for KSK-2024, which was not distributed
+    in release 2024071800 because it is not yet published in the root zone.
+  * Replace the parser of the root-anchors.xml file with a new one which
+    follows RFC 7958bis and will output all valid and not expired DS and
+    DNSKEY records, no matter if they are currently published in the root
+    zone or not.
+  * Document the package in README.Debian. (Closes: #995890)
+
+ -- Marco d'Itri <md@linux.it>  Sun, 17 Nov 2024 21:57:17 +0100
+
+dns-root-data (2024071800) unstable; urgency=medium
+
+  * Update root-anchors.xml and its signature to add the new KSK-2024.
+    (Closes: #1076995)
+
+ -- Marco d'Itri <md@linux.it>  Thu, 07 Nov 2024 22:51:09 +0100
+
+dns-root-data (2024041802) unstable; urgency=medium
+
+  * Stop installing root.hints.sig, since no package actually uses the file.
+  * Stop the package from FTBFS in the periods between when root-anchors.xml
+    is updated and the new root KSK is actually published in the DNS.
+
+ -- Marco d'Itri <md@linux.it>  Sun, 18 Aug 2024 02:18:32 +0200
+
+dns-root-data (2024041801) unstable; urgency=medium
+
+  * Add myself to the Uploaders field, as discussed with Ondřej.
+  * Fix the package description. (Closes: #1064829)
+  * Update the expired Verisign GRS PGP key.
+  * Update the root hints file to version 2024041801, with:
+    + updated A and AAAA records for B. (Closes: #1054393)
+
+ -- Marco d'Itri <md@linux.it>  Tue, 21 May 2024 16:25:44 +0200
+
+dns-root-data (2023010101) unstable; urgency=medium
+
+  * merge current root hints and signatures (same contents as before)
+  * d/copyright: bump to 2023
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Wed, 11 Jan 2023 10:00:11 -0500
+
+dns-root-data (2022120101) unstable; urgency=medium
+
+  * Updated upstream root data (same contents as before)
+  * d/copyright: update for 2022
+  * Standards-Version: bump to 4.6.1 (no changes needed)
+
+ -- Daniel Kahn Gillmor <dkg@fifthhorseman.net>  Tue, 20 Dec 2022 18:51:44 -0500
+
 dns-root-data (2021011101) unstable; urgency=medium
 
   * updated upstream root data (same contents as before)

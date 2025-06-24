@@ -4,16 +4,19 @@ Priority: optional
 Maintainer: dns-root-data packagers <dns-root-data@packages.debian.org>
 Uploaders:
  Daniel Kahn Gillmor <dkg@fifthhorseman.net>,
+ Marco d'Itri <md@linux.it>,
  Ondřej Surý <ondrej@debian.org>,
  Robert Edmonds <edmonds@debian.org>,
 Build-Depends:
  debhelper-compat (= 13),
  gpgv,
- ldnsutils,
+ libdatetime-format-rfc3339-perl,
+ libdatetime-perl,
+ libnet-dns-perl,
+ libpath-tiny-perl,
+ libxml-libxml-perl,
  openssl,
- unbound-anchor,
- xml2,
-Standards-Version: 4.5.1
+Standards-Version: 4.7.0.0
 Homepage: https://data.iana.org/root-anchors/
 Vcs-Git: https://salsa.debian.org/dns-team/dns-root-data.git
 Vcs-Browser: https://salsa.debian.org/dns-team/dns-root-data
@@ -24,7 +27,7 @@ Architecture: all
 Multi-Arch: foreign
 Depends:
  ${misc:Depends},
-Description: DNS root data including root zone and DNSSEC key
+Description: DNS root hints and DNSSEC trust anchor
  This package contains various root zone related data as published
  by IANA to be used by various DNS software as a common source
  of DNS root zone data, namely:
