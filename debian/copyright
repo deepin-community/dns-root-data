@@ -3,7 +3,7 @@ Upstream-Name: IANA Root Zone Management
 Source: https://www.iana.org/domains/root/files
 
 Files: *
-Copyright: Copyright (c) 2010-2018 Internet Corporation For Assigned Names and Numbers
+Copyright: not asserted
 License: ICANN-Public
  ICANN asserts no property rights to any of the IANA registries or
  public keys we maintain. You are free to redistribute the IANA
@@ -14,7 +14,8 @@ License: ICANN-Public
 
 Files: debian/*
 Copyright: 2014 Ondřej Surý <ondrej@debian.org>,
- 2018 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
+ 2018-2023 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
+ 2024 Marco d'Itri <md@linux.it>
 License: Expat
 
 License: Expat
