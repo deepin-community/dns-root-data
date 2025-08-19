@@ -16,7 +16,7 @@ Build-Depends:
  libpath-tiny-perl,
  libxml-libxml-perl,
  openssl,
-Standards-Version: 4.7.0.0
+Standards-Version: 4.7.2.0
 Homepage: https://data.iana.org/root-anchors/
 Vcs-Git: https://salsa.debian.org/dns-team/dns-root-data.git
 Vcs-Browser: https://salsa.debian.org/dns-team/dns-root-data
