@@ -13,7 +13,7 @@ echo "root-anchors.xml has changed."
 
 wget -O root-anchors.p7s.NEW https://data.iana.org/root-anchors/root-anchors.p7s
 
-openssl smime -verify -CAfile icannbundle.pem -inform DER -in root-anchors.p7s -content root-anchors.xml -out /dev/null
+openssl smime -verify -CAfile icannbundle.pem -inform DER -in root-anchors.p7s.NEW -content root-anchors.xml.NEW -out /dev/null
 
 mv root-anchors.xml.NEW root-anchors.xml
 mv root-anchors.p7s.NEW root-anchors.p7s

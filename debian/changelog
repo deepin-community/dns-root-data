@@ -1,3 +1,12 @@
+dns-root-data (2025080400) unstable; urgency=medium
+
+  * Update root-anchors.p7s (the signature of root-anchors.xml) with a new
+    expiration date of Dec 18 04:19:12 2029 GMT.
+    The old signature would expire on Jul  7 22:48:13 2026 GMT.
+    (Closes: #1091496)
+
+ -- Marco d'Itri <md@linux.it>  Mon, 18 Aug 2025 12:22:39 +0200
+
 dns-root-data (2024071801) unstable; urgency=medium
 
   * Actually add the DNSKEY record for KSK-2024, which was not distributed
